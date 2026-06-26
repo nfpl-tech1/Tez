@@ -5,11 +5,11 @@ services:
     restart: unless-stopped
     environment:
       - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
-      - DATABASE_URL=sqlite:///./data/tool_repository.db
+      - DATABASE_URL=sqlite:///app/data/tool_repository.db
       - UPLOAD_DIR=/app/uploads
     volumes:
-      - ./data:/app/data
-      - ./uploads:/app/uploads
+      - /Dokploy/data/tez-portal:/app/data
+      - /Dokploy/data/tez-portal/uploads:/app/uploads
     expose:
       - "8000"
     healthcheck:
