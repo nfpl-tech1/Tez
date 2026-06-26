@@ -25,10 +25,13 @@ services:
     restart: unless-stopped
     expose:
       - "80"
+    networks:
+      - dokploy-network
+      - default
     depends_on:
       backend:
         condition: service_healthy
 
-volumes:
-  data:
-  uploads:
+networks:
+  dokploy-network:
+    external: true
