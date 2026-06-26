@@ -177,9 +177,13 @@ class ToolService:
         return query.distinct().order_by(Tool.updated_at.desc()).all()
     
     def increment_download_count(self, tool: Tool) -> None:
-        """Increment tool download counter."""
-        tool.download_count += 1
+        """Increment tool download counter without updating 'updated_at'."""
+        self.db.query(Tool).filter(Tool.id == tool.id).update(
+            {"download_count": Tool.download_count + 1},
+            synchronize_session=False
+        )
         self.db.commit()
+        tool.download_count += 1
     
     def get_pending_count(self) -> int:
         """Get count of pending tools."""
