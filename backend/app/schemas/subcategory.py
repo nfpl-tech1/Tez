@@ -6,6 +6,7 @@ class SubcategoryBase(BaseModel):
 class SubcategoryResponse(SubcategoryBase):
     id: int
     department_id: int
+    sort_order: int = 0
     
     class Config:
-        orm_mode = True
+        from_attributes = True

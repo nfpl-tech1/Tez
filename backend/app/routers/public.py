@@ -151,6 +151,15 @@ async def get_departments(db: Session = Depends(get_db)):
     return [department_to_response(d) for d in dept_service.get_all_departments()]
 
 
+from ..models.subcategory import Subcategory
+from ..schemas.subcategory import SubcategoryResponse
+
+@router.get("/subcategories", response_model=List[SubcategoryResponse])
+async def get_subcategories(db: Session = Depends(get_db)):
+    """Get all subcategories."""
+    return db.query(Subcategory).order_by(Subcategory.sort_order).all()
+
+
 @router.get("/stats")
 async def get_stats(db: Session = Depends(get_db)):
     """Get public statistics."""

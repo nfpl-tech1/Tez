@@ -34,6 +34,13 @@ export function usePublicDepartments() {
     });
 }
 
+export function useSubcategories() {
+    return useQuery({
+        queryKey: ['subcategories'] as const,
+        queryFn: () => publicApi.getSubcategories(),
+    });
+}
+
 export function useCreateDepartment() {
     const queryClient = useQueryClient();
 

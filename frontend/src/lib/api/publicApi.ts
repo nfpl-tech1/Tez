@@ -4,7 +4,7 @@
  * API functions for public (unauthenticated) operations.
  */
 import api from './axios';
-import type { ToolDetail, Department } from '../types';
+import type { ToolDetail, Department, Subcategory } from '../types';
 
 export const publicApi = {
     getTools: async (query?: string, departmentId?: number) => {
@@ -23,6 +23,11 @@ export const publicApi = {
 
     getDepartments: async (): Promise<Department[]> => {
         const response = await api.get('/public/departments');
+        return response.data;
+    },
+
+    getSubcategories: async (): Promise<Subcategory[]> => {
+        const response = await api.get('/public/subcategories');
         return response.data;
     },
 

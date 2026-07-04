@@ -57,6 +57,9 @@ export interface Tool {
     admin_remarks: string | null;
     department_ids: number[];
     department_names: string[];
+    subcategory_ids?: number[];
+    subcategory_names: string[];
+    github_url: string | null;
     can_edit: boolean;
     can_update_content: boolean;
     download_count: number;
@@ -78,6 +81,8 @@ export interface ToolDetail {
     file_size: number;
     file_size_display: string;
     department_names: string[];
+    subcategory_names: string[];
+    github_url: string | null;
     uploader_name: string;
     uploader_email: string;
     download_count: number;
@@ -101,6 +106,8 @@ export interface ToolReview {
     uploader_name: string;
     uploader_email: string;
     department_names: string[];
+    subcategory_names: string[];
+    github_url: string | null;
     download_count: number;
 }
 
@@ -113,6 +120,13 @@ export interface Department {
     name: string;
     description: string | null;
     tool_count?: number;
+}
+
+export interface Subcategory {
+    id: number;
+    name: string;
+    department_id: number;
+    sort_order?: number;
 }
 
 // ============================================================================
@@ -192,6 +206,8 @@ export interface ToolFormData {
     instructions: string;
     instructionType: InstructionType;
     selectedDepartments: number[];
+    selectedSubcategories: number[];
+    github_url?: string;
 }
 
 export interface TeamMemberFormData {

@@ -43,6 +43,8 @@ export default function AdminEditTool() {
             instructions: '',
             instructionType: 'markdown',
             selectedDepartments: [],
+            selectedSubcategories: [],
+            github_url: '',
         },
     });
 
@@ -56,6 +58,8 @@ export default function AdminEditTool() {
                 instructions: tool.instructions || '',
                 instructionType: tool.instruction_type as 'markdown' | 'pdf',
                 selectedDepartments: tool.department_ids || [],
+                selectedSubcategories: tool.subcategory_ids || [],
+                github_url: tool.github_url || '',
             });
         }
     }, [tool, reset]);
@@ -80,6 +84,8 @@ export default function AdminEditTool() {
                     description: data.description,
                     instructions: data.instructions,
                     department_ids: data.selectedDepartments,
+                    subcategory_ids: data.selectedSubcategories,
+                    github_url: data.github_url,
                 }
             },
             {

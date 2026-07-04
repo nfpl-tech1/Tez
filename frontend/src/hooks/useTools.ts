@@ -84,7 +84,7 @@ export function useAdminUpdateTool() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: number; data: { name: string; description: string; instructions?: string; department_ids: number[] } }) =>
+        mutationFn: ({ id, data }: { id: number; data: { name: string; description: string; instructions?: string; department_ids: number[]; subcategory_ids?: number[]; github_url?: string } }) =>
             adminApi.updateTool(id, data),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: toolKeys.detail(variables.id) });

@@ -36,6 +36,8 @@ export default function EditTool() {
             instructions: '',
             instructionType: 'markdown',
             selectedDepartments: [],
+            selectedSubcategories: [],
+            github_url: '',
         },
     });
 
@@ -50,6 +52,8 @@ export default function EditTool() {
                 instructions: tool.instructions || '',
                 instructionType: tool.instruction_type as 'markdown' | 'pdf',
                 selectedDepartments: tool.department_ids || [],
+                selectedSubcategories: tool.subcategory_ids || [],
+                github_url: tool.github_url || '',
             });
         }
     }, [tool, reset]);
@@ -78,6 +82,12 @@ export default function EditTool() {
         }
         if (data.selectedDepartments.length > 0) {
             formData.append('department_ids', data.selectedDepartments.join(','));
+        }
+        if (data.selectedSubcategories.length > 0) {
+            formData.append('subcategory_ids', data.selectedSubcategories.join(','));
+        }
+        if (data.github_url) {
+            formData.append('github_url', data.github_url);
         }
         if (file) formData.append('file', file);
         if (data.instructionType === 'pdf' && pdfFile) {

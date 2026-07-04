@@ -22,6 +22,8 @@ export const toolFormSchema = z.object({
     instructions: z.string().optional(),
     selectedDepartments: z.array(z.number())
         .min(1, VALIDATION_MESSAGES.REQUIRED.DEPARTMENT),
+    selectedSubcategories: z.array(z.number()),
+    github_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
 });
 
 export type ToolFormValues = z.infer<typeof toolFormSchema>;

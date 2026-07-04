@@ -36,7 +36,7 @@ export default function UploadTool() {
 
     const form = useForm<ToolFormValues>({
         resolver: zodResolver(toolFormSchema),
-        defaultValues: { name: '', description: '', instructions: '', instructionType: 'markdown', selectedDepartments: [] },
+        defaultValues: { name: '', description: '', instructions: '', instructionType: 'markdown', selectedDepartments: [], selectedSubcategories: [], github_url: '' },
         mode: 'onChange',
     });
 
@@ -75,6 +75,8 @@ export default function UploadTool() {
             formData.append('save_as_draft', isDraft.toString());
             if (data.instructionType === 'markdown') formData.append('instructions', data.instructions || '');
             if (data.selectedDepartments.length > 0) formData.append('department_ids', data.selectedDepartments.join(','));
+            if (data.selectedSubcategories.length > 0) formData.append('subcategory_ids', data.selectedSubcategories.join(','));
+            if (data.github_url) formData.append('github_url', data.github_url);
             if (file) formData.append('file', file);
             if (data.instructionType === 'pdf' && pdfFile) formData.append('instruction_pdf', pdfFile);
 

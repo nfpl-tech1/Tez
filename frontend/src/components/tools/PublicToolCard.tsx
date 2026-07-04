@@ -14,6 +14,7 @@ interface PublicToolCardProps {
         name: string;
         description: string;
         department_names?: string[];
+        subcategory_names?: string[];
         uploader_name: string;
         download_count: number;
         file_size_display: string;
@@ -53,19 +54,27 @@ export function PublicToolCard({ tool }: PublicToolCardProps) {
                     </p>
 
                     {/* Tags - Show first 2 with overflow indicator */}
-                    {departments.length > 0 && (
+                    {(departments.length > 0 || (tool.subcategory_names && tool.subcategory_names.length > 0)) && (
                         <div className="mb-3 flex flex-wrap gap-1.5">
                             {departments.slice(0, 2).map((dept, idx) => (
                                 <span
-                                    key={idx}
+                                    key={`dept-${idx}`}
                                     className="px-2 py-0.5 text-xs font-medium rounded-md bg-gray-100 text-gray-600"
                                 >
                                     {dept}
                                 </span>
                             ))}
-                            {departments.length > 2 && (
+                            {tool.subcategory_names?.slice(0, 2).map((sub, idx) => (
+                                <span
+                                    key={`sub-${idx}`}
+                                    className="px-2 py-0.5 text-xs font-medium rounded-md bg-blue-50 text-blue-600 border border-blue-100"
+                                >
+                                    {sub}
+                                </span>
+                            ))}
+                            {(departments.length > 2 || (tool.subcategory_names && tool.subcategory_names.length > 2)) && (
                                 <span className="px-2 py-0.5 text-xs font-medium rounded-md bg-gray-100 text-gray-500">
-                                    +{departments.length - 2}
+                                    +
                                 </span>
                             )}
                         </div>

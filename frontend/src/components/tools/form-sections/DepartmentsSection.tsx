@@ -1,9 +1,11 @@
 import { type UseFormWatch, type UseFormSetValue, type FieldErrors } from 'react-hook-form';
 import { Card, CardContent } from '@/components/ui/card';
-import { DepartmentSelector } from '@/components/forms';
+import { DepartmentSelector, SubcategorySelector } from '@/components/forms';
 import type { Department } from '@/lib/api';
 import type { ToolFormValues } from '@/lib/schemas';
 import { AlertCircle } from 'lucide-react';
+import { useSubcategories } from '@/hooks/useDepartments';
+import { useEffect } from 'react';
 
 interface DepartmentsSectionProps {
     departments: Department[];
@@ -21,6 +23,30 @@ export function DepartmentsSection({
     disabled
 }: DepartmentsSectionProps) {
     const selectedDepartments = watch('selectedDepartments');
+    const selectedSubcategories = watch('selectedSubcategories') || [];
+    const { data: allSubcategories = [] } = useSubcategories();
+
+    // Filter subcategories by selected departments
+    const filteredSubcategories = allSubcategories.filter(sub => 
+        selectedDepartments?.includes(sub.department_id)
+    );
+
+    // Auto-remove subcategories if their parent department is unchecked
+    useEffect(() => {
+        if (!selectedDepartments || selectedDepartments.length === 0) {
+            if (selectedSubcategories.length > 0) {
+                setValue('selectedSubcategories', []);
+            }
+            return;
+        }
+
+        const validSubIds = filteredSubcategories.map(s => s.id);
+        const newSelected = selectedSubcategories.filter(id => validSubIds.includes(id));
+        
+        if (newSelected.length !== selectedSubcategories.length) {
+            setValue('selectedSubcategories', newSelected);
+        }
+    }, [selectedDepartments, filteredSubcategories, selectedSubcategories, setValue]);
 
     const toggleDepartment = (deptId: number) => {
         const current = selectedDepartments || [];
@@ -30,12 +56,19 @@ export function DepartmentsSection({
         setValue('selectedDepartments', updated, { shouldValidate: true });
     };
 
+    const toggleSubcategory = (subId: number) => {
+        const updated = selectedSubcategories.includes(subId)
+            ? selectedSubcategories.filter(id => id !== subId)
+            : [...selectedSubcategories, subId];
+        setValue('selectedSubcategories', updated, { shouldValidate: true });
+    };
+
     return (
         <Card>
             <CardContent className="p-6">
                 <DepartmentSelector
                     departments={departments}
-                    selectedIds={selectedDepartments}
+                    selectedIds={selectedDepartments || []}
                     onToggle={toggleDepartment}
                     disabled={disabled}
                 />
@@ -45,7 +78,15 @@ export function DepartmentsSection({
                         {errors.selectedDepartments.message}
                     </p>
                 )}
+
+                <SubcategorySelector
+                    subcategories={filteredSubcategories}
+                    selectedIds={selectedSubcategories}
+                    onToggle={toggleSubcategory}
+                    disabled={disabled}
+                />
             </CardContent>
         </Card>
     );
 }
+

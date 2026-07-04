@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Package, FolderOpen, Download, Edit } from 'lucide-react';
+import { ArrowLeft, Package, FolderOpen, Download, Edit, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
@@ -37,6 +37,11 @@ export function ToolDetailHeader({ tool, onDownload }: ToolDetailHeaderProps) {
                                             {dept}
                                         </Badge>
                                     ))}
+                                    {tool.subcategory_names?.map((sub, idx) => (
+                                        <Badge key={`sub-${idx}`} variant="outline" className="border-white/30 text-white bg-white/10">
+                                            {sub}
+                                        </Badge>
+                                    ))}
                                 </div>
                             )}
                             <p className="text-white/80 text-lg max-w-2xl">{tool.description}</p>
@@ -54,6 +59,18 @@ export function ToolDetailHeader({ tool, onDownload }: ToolDetailHeaderProps) {
                                     Edit Tool
                                 </Button>
                             </Link>
+                        )}
+                        {tool.github_url && (
+                            <a href={tool.github_url} target="_blank" rel="noopener noreferrer">
+                                <Button
+                                    size="lg"
+                                    variant="outline"
+                                    className="border-white/30 text-white bg-white/10 hover:bg-white/20 h-14 px-6 text-lg"
+                                >
+                                    <Github className="h-5 w-5 mr-2" />
+                                    GitHub
+                                </Button>
+                            </a>
                         )}
                         <Button
                             size="lg"

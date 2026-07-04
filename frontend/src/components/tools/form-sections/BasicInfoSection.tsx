@@ -56,6 +56,23 @@ export function BasicInfoSection({ register, errors, disabled }: BasicInfoSectio
                         </p>
                     )}
                 </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="github_url">GitHub URL (Optional)</Label>
+                    <Input
+                        id="github_url"
+                        {...register('github_url')}
+                        disabled={disabled}
+                        placeholder="https://github.com/org/repo"
+                        className={cn("h-12", errors.github_url && 'border-destructive')}
+                    />
+                    {errors.github_url && (
+                        <p className="text-sm text-destructive flex items-center gap-1">
+                            <AlertCircle className="h-4 w-4" />
+                            {errors.github_url.message}
+                        </p>
+                    )}
+                </div>
             </CardContent>
         </Card>
     );

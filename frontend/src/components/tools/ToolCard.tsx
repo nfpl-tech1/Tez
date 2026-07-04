@@ -28,6 +28,7 @@ export interface ToolCardData {
     download_count: number;
     department_names: string[];
     department_ids?: number[];
+    subcategory_names?: string[];
     uploader_name?: string;
     created_at: string;
     updated_at: string;
@@ -106,6 +107,13 @@ export function ToolCard({
                                 <Badge key={idx} variant="outline" className="gap-1">
                                     <FolderOpen className="h-3 w-3" />
                                     {dept}
+                                </Badge>
+                            ))}
+                            
+                            {/* Subcategory badges */}
+                            {tool.subcategory_names?.map((sub, idx) => (
+                                <Badge key={`sub-${idx}`} variant="secondary" className="gap-1 bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] border-[hsl(var(--primary))]/20">
+                                    {sub}
                                 </Badge>
                             ))}
                         </div>
