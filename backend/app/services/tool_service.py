@@ -11,6 +11,7 @@ from sqlalchemy import or_
 
 from ..models.tool import Tool, tool_departments
 from ..models.department import Department
+from ..models.subcategory import Subcategory
 from .notification_service import NotificationService
 
 
@@ -35,6 +36,8 @@ class ToolService:
         instructions: Optional[str],
         uploaded_by: int,
         department_ids: List[int] = None,
+        subcategory_ids: List[int] = None,
+        github_url: Optional[str] = None,
         status: str = "pending"
     ) -> Tool:
         """Create a new tool with multiple department support."""
@@ -43,6 +46,7 @@ class ToolService:
             description=description,
             instructions=instructions,
             uploaded_by=uploaded_by,
+            github_url=github_url or "",
             status=status
         )
         
@@ -54,6 +58,12 @@ class ToolService:
                 Department.id.in_(department_ids)
             ).all()
             tool.departments = departments
+            
+        if subcategory_ids:
+            subcategories = self.db.query(Subcategory).filter(
+                Subcategory.id.in_(subcategory_ids)
+            ).all()
+            tool.subcategories = subcategories
         
         self.db.commit()
         self.db.refresh(tool)
@@ -70,6 +80,23 @@ class ToolService:
         ).all() if department_ids else []
         tool.departments = departments
         self.db.commit()
+        
+    def update_tool_subcategories(self, tool: Tool, subcategory_ids: List[int]) -> None:
+        """Update tool subcategories (many-to-many)."""
+        subcategories = self.db.query(Subcategory).filter(
+            Subcategory.id.in_(subcategory_ids)
+        ).all() if subcategory_ids else []
+        tool.subcategories = subcategories
+        self.db.commit()
+    
+    def check_github_url_exists(self, github_url: str, exclude_tool_id: Optional[int] = None) -> bool:
+        """Check if a github url already exists in the database."""
+        if not github_url:
+            return False
+        query = self.db.query(Tool).filter(Tool.github_url == github_url)
+        if exclude_tool_id:
+            query = query.filter(Tool.id != exclude_tool_id)
+        return query.first() is not None
     
     def update_tool(
         self,
@@ -77,7 +104,9 @@ class ToolService:
         name: Optional[str] = None,
         description: Optional[str] = None,
         instructions: Optional[str] = None,
-        department_ids: Optional[List[int]] = None
+        department_ids: Optional[List[int]] = None,
+        subcategory_ids: Optional[List[int]] = None,
+        github_url: Optional[str] = None
     ) -> Tool:
         """Update tool details."""
         if name:
@@ -88,6 +117,10 @@ class ToolService:
             tool.instructions = instructions
         if department_ids is not None:
             self.update_tool_departments(tool, department_ids)
+        if subcategory_ids is not None:
+            self.update_tool_subcategories(tool, subcategory_ids)
+        if github_url is not None:
+            tool.github_url = github_url
         
         tool.updated_at = datetime.utcnow()
         self.db.commit()

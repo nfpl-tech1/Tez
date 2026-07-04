@@ -21,6 +21,14 @@ tool_departments = Table(
     Column('department_id', Integer, ForeignKey('departments.id', ondelete='CASCADE'), primary_key=True)
 )
 
+# Many-to-many junction table for tools and subcategories
+tool_subcategories = Table(
+    'tool_subcategories',
+    Base.metadata,
+    Column('tool_id', Integer, ForeignKey('tools.id', ondelete='CASCADE'), primary_key=True),
+    Column('subcategory_id', Integer, ForeignKey('subcategories.id', ondelete='CASCADE'), primary_key=True)
+)
+
 
 class Tool(Base):
     """Tool model for uploaded applications."""
@@ -30,6 +38,7 @@ class Tool(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False, index=True)
     description = Column(String(500), nullable=False)
+    github_url = Column(String(500), nullable=False, default="")
     
     # Instructions can be Markdown text OR PDF file (mutually exclusive)
     instruction_type = Column(String(10), default="markdown")  # 'markdown' or 'pdf'
@@ -46,6 +55,13 @@ class Tool(Base):
     departments = relationship(
         "Department",
         secondary=tool_departments,
+        back_populates="tools"
+    )
+    
+    # Relationships - Many-to-many with subcategories
+    subcategories = relationship(
+        "Subcategory",
+        secondary=tool_subcategories,
         back_populates="tools"
     )
     

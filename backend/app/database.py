@@ -41,7 +41,7 @@ def get_db():
 def init_db():
     """Initialize database tables."""
     # Import all models to ensure they're registered
-    from .models import user, tool, notification, department, issue
+    from .models import user, tool, notification, department, issue, subcategory
     
     # Create all tables
     Base.metadata.create_all(bind=engine)

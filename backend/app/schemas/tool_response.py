@@ -35,6 +35,8 @@ class ToolListItem(BaseModel):
     description: str
     file_size_display: str
     department_names: List[str]
+    subcategory_names: List[str] = []
+    github_url: Optional[str] = None
     uploader_name: str
     download_count: int
     updated_at: datetime
@@ -58,6 +60,9 @@ class ToolResponse(BaseModel):
     admin_remarks: Optional[str] = None
     department_ids: List[int] = []
     department_names: List[str] = []
+    subcategory_ids: List[int] = []
+    subcategory_names: List[str] = []
+    github_url: Optional[str] = None
     can_edit: bool = False
     can_update_content: bool = False
     download_count: int = 0
@@ -83,6 +88,8 @@ class ToolDetail(BaseModel):
     file_size: int = 0
     file_size_display: str = ""
     department_names: List[str] = []
+    subcategory_names: List[str] = []
+    github_url: Optional[str] = None
     uploader_name: str
     uploader_email: str
     download_count: int = 0

@@ -27,6 +27,12 @@ class Department(Base):
         back_populates="departments"
     )
     
+    subcategories = relationship(
+        "Subcategory",
+        back_populates="department",
+        cascade="all, delete-orphan"
+    )
+    
     @property
     def tool_count(self) -> int:
         """Count of approved tools in this department."""

@@ -59,6 +59,8 @@ async def create_tool(
     instruction_type: str = Form("markdown"),
     instructions: Optional[str] = Form(None),
     department_ids: str = Form(""),
+    subcategory_ids: str = Form(""),
+    github_url: Optional[str] = Form(None),
     save_as_draft: bool = Form(False),
     file: Optional[UploadFile] = File(None),
     instruction_pdf: Optional[UploadFile] = File(None),
@@ -70,6 +72,12 @@ async def create_tool(
     tool_service = ToolService(db)
     
     dept_ids = parse_department_ids(department_ids)
+    sub_ids = parse_department_ids(subcategory_ids)
+    
+    # Check github url uniqueness
+    if github_url and tool_service.check_github_url_exists(github_url):
+        raise HTTPException(status_code=400, detail="A tool with this GitHub URL already exists")
+    
     
     # Validate for submission
     if not save_as_draft:
@@ -99,6 +107,8 @@ async def create_tool(
         instructions=instructions if instruction_type == "markdown" else None,
         uploaded_by=user_id,
         department_ids=dept_ids,
+        subcategory_ids=sub_ids,
+        github_url=github_url,
         status="draft" if save_as_draft else "pending"
     )
     
@@ -126,6 +136,8 @@ async def update_tool(
     instruction_type: str = Form("markdown"),
     instructions: Optional[str] = Form(None),
     department_ids: str = Form(""),
+    subcategory_ids: str = Form(""),
+    github_url: Optional[str] = Form(None),
     save_as_draft: bool = Form(False),
     file: Optional[UploadFile] = File(None),
     instruction_pdf: Optional[UploadFile] = File(None),
@@ -152,6 +164,11 @@ async def update_tool(
         raise HTTPException(status_code=400, detail="Tool cannot be edited")
     
     dept_ids = parse_department_ids(department_ids)
+    sub_ids = parse_department_ids(subcategory_ids)
+    
+    if github_url and tool_service.check_github_url_exists(github_url, exclude_tool_id=tool_id):
+        raise HTTPException(status_code=400, detail="A tool with this GitHub URL already exists")
+    
     
     # Handle file upload
     if file and file.filename:
@@ -184,10 +201,19 @@ async def update_tool(
     tool.name = name
     tool.description = description
     tool.instruction_type = instruction_type
-    tool.status = "draft" if save_as_draft else "pending"
+    
+    if save_as_draft:
+        tool.status = "draft"
+    elif tool.status != "approved":
+        tool.status = "pending"
+        
     tool.admin_remarks = None
     
+    if github_url is not None:
+        tool.github_url = github_url or ""
+    
     tool_service.update_tool_departments(tool, dept_ids)
+    tool_service.update_tool_subcategories(tool, sub_ids)
     db.commit()
     db.refresh(tool)
     
