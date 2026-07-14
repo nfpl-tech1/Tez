@@ -7,7 +7,7 @@ Supports PDF or Markdown instructions
 Supports multiple departments via junction table
 """
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Table, Boolean
 from sqlalchemy.orm import relationship
 
 from ..database import Base
@@ -19,6 +19,14 @@ tool_departments = Table(
     Base.metadata,
     Column('tool_id', Integer, ForeignKey('tools.id', ondelete='CASCADE'), primary_key=True),
     Column('department_id', Integer, ForeignKey('departments.id', ondelete='CASCADE'), primary_key=True)
+)
+
+# Many-to-many junction table for tools and maintainers
+tool_maintainers = Table(
+    'tool_maintainers',
+    Base.metadata,
+    Column('tool_id', Integer, ForeignKey('tools.id', ondelete='CASCADE'), primary_key=True),
+    Column('user_id', Integer, ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
 )
 
 # Many-to-many junction table for tools and subcategories
@@ -38,7 +46,12 @@ class Tool(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False, index=True)
     description = Column(String(500), nullable=False)
+    resource_type = Column(String(20), nullable=True)
+    webapp_url = Column(String(500), nullable=True)
     github_url = Column(String(500), nullable=False, default="")
+    visible = Column(Boolean, nullable=True)
+    video_tutorial_url = Column(Text, nullable=True)
+    video_required = Column(Boolean, nullable=False, default=True)
     
     # Instructions can be Markdown text OR PDF file (mutually exclusive)
     instruction_type = Column(String(10), default="markdown")  # 'markdown' or 'pdf'
@@ -63,6 +76,13 @@ class Tool(Base):
         "Subcategory",
         secondary=tool_subcategories,
         back_populates="tools"
+    )
+    
+    # Relationships - Many-to-many with maintainers
+    maintainers = relationship(
+        "User",
+        secondary=tool_maintainers,
+        backref="maintained_tools"
     )
     
     # Legacy single department (for migration compatibility)

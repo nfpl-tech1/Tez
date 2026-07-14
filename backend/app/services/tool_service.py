@@ -188,7 +188,8 @@ class ToolService:
     def get_approved_tools(
         self,
         search_query: Optional[str] = None,
-        department_id: Optional[int] = None
+        department_id: Optional[int] = None,
+        subcategory_ids: Optional[List[int]] = None
     ) -> List[Tool]:
         """Get approved tools with optional filtering."""
         query = self.db.query(Tool).filter(Tool.status == "approved")
@@ -206,13 +207,19 @@ class ToolService:
             query = query.join(tool_departments).filter(
                 tool_departments.c.department_id == department_id
             )
+            
+        if subcategory_ids:
+            query = query.filter(Tool.subcategories.any(Subcategory.id.in_(subcategory_ids)))
         
         return query.distinct().order_by(Tool.updated_at.desc()).all()
     
     def increment_download_count(self, tool: Tool) -> None:
         """Increment tool download counter without updating 'updated_at'."""
         self.db.query(Tool).filter(Tool.id == tool.id).update(
-            {"download_count": Tool.download_count + 1},
+            {
+                "download_count": Tool.download_count + 1,
+                "updated_at": Tool.updated_at
+            },
             synchronize_session=False
         )
         self.db.commit()

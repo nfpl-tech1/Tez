@@ -105,7 +105,9 @@ export interface ToolReview {
     updated_at: string;
     uploader_name: string;
     uploader_email: string;
+    department_ids: number[];
     department_names: string[];
+    subcategory_ids: number[];
     subcategory_names: string[];
     github_url: string | null;
     download_count: number;

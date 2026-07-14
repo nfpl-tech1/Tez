@@ -76,10 +76,10 @@ async def create_team_member(
     user = User(
         username=data.username,
         email=data.email,
-        password_hash=AuthService.hash_password(data.password),
         name=data.name,
         role='team_member'
     )
+    user.set_password(data.password)
     db.add(user)
     db.commit()
     db.refresh(user)

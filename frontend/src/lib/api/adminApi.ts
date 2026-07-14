@@ -72,7 +72,7 @@ export const adminApi = {
         return response.data;
     },
 
-    updateTool: async (id: number, data: { name: string; description: string; instructions?: string; department_ids: number[] }) => {
+    updateTool: async (id: number, data: { name: string; description: string; instructions?: string; department_ids: number[]; subcategory_ids?: number[]; github_url?: string }) => {
         const response = await api.put(`/admin/tools/${id}`, data);
         return response.data;
     },

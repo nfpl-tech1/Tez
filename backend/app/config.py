@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # File uploads
     UPLOAD_DIR: str = "./uploads"
     MAX_FILE_SIZE: int = 157286400  # 150MB in bytes
-    ALLOWED_EXTENSIONS: set = {".exe"}
+    ALLOWED_EXTENSIONS: set = {".exe", ".zip"}
     
     # Default admin credentials (only for initial setup)
     ADMIN_USERNAME: str = "nagarkotadmin"

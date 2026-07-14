@@ -50,6 +50,8 @@ class ToolResponse(BaseModel):
     id: int
     name: str
     description: str
+    resource_type: Optional[str] = None
+    webapp_url: Optional[str] = None
     instruction_type: str
     instructions: Optional[str] = None
     instruction_pdf_name: Optional[str] = None
@@ -63,6 +65,9 @@ class ToolResponse(BaseModel):
     subcategory_ids: List[int] = []
     subcategory_names: List[str] = []
     github_url: Optional[str] = None
+    visible: Optional[bool] = None
+    video_tutorial_url: Optional[str] = None
+    video_required: bool = True
     can_edit: bool = False
     can_update_content: bool = False
     download_count: int = 0
@@ -80,6 +85,8 @@ class ToolDetail(BaseModel):
     id: int
     name: str
     description: str
+    resource_type: Optional[str] = None
+    webapp_url: Optional[str] = None
     instruction_type: str
     instructions: Optional[str] = None
     instructions_html: Optional[str] = None
@@ -90,6 +97,9 @@ class ToolDetail(BaseModel):
     department_names: List[str] = []
     subcategory_names: List[str] = []
     github_url: Optional[str] = None
+    visible: Optional[bool] = None
+    video_tutorial_url: Optional[str] = None
+    video_required: bool = True
     uploader_name: str
     uploader_email: str
     download_count: int = 0

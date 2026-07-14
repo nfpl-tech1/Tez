@@ -7,10 +7,13 @@ import api from './axios';
 import type { ToolDetail, Department, Subcategory } from '../types';
 
 export const publicApi = {
-    getTools: async (query?: string, departmentId?: number) => {
+    getTools: async (query?: string, departmentId?: number, subcategories?: number[]) => {
         const params = new URLSearchParams();
         if (query) params.append('q', query);
         if (departmentId) params.append('department', departmentId.toString());
+        if (subcategories && subcategories.length > 0) {
+            subcategories.forEach(id => params.append('subcategories', id.toString()));
+        }
 
         const response = await api.get(`/public/tools?${params.toString()}`);
         return response.data;

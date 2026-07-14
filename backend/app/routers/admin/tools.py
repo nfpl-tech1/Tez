@@ -28,6 +28,8 @@ class ToolReviewResponse(BaseModel):
     id: int
     name: str
     description: str
+    resource_type: Optional[str] = None
+    webapp_url: Optional[str] = None
     instruction_type: str
     instructions: Optional[str]
     instructions_html: Optional[str] = None
@@ -44,6 +46,12 @@ class ToolReviewResponse(BaseModel):
     uploader: Optional[UploaderInfo] = None
     department_ids: List[int] = []
     department_names: List[str] = []
+    subcategory_ids: List[int] = []
+    subcategory_names: List[str] = []
+    github_url: Optional[str] = None
+    visible: Optional[bool] = None
+    video_tutorial_url: Optional[str] = None
+    video_required: bool = True
     download_count: int = 0
 
     class Config:
@@ -55,6 +63,8 @@ class ToolEditRequest(BaseModel):
     description: str
     instructions: Optional[str] = None
     department_ids: List[int] = []
+    subcategory_ids: List[int] = []
+    github_url: Optional[str] = None
 
 
 class RemarksRequest(BaseModel):
@@ -84,6 +94,8 @@ def _tool_to_review_response(tool) -> ToolReviewResponse:
         id=tool.id,
         name=tool.name,
         description=tool.description,
+        resource_type=tool.resource_type,
+        webapp_url=tool.webapp_url,
         instruction_type=tool.instruction_type or "markdown",
         instructions=tool.instructions,
         instructions_html=instructions_html,
@@ -100,6 +112,12 @@ def _tool_to_review_response(tool) -> ToolReviewResponse:
         uploader=UploaderInfo(name=tool.uploader.name, email=tool.uploader.email),
         department_ids=[d.id for d in tool.departments],
         department_names=[d.name for d in tool.departments],
+        subcategory_ids=[s.id for s in tool.subcategories],
+        subcategory_names=[s.name for s in tool.subcategories],
+        github_url=tool.github_url,
+        visible=tool.visible,
+        video_tutorial_url=tool.video_tutorial_url,
+        video_required=tool.video_required,
         download_count=tool.download_count
     )
 
@@ -163,8 +181,12 @@ async def admin_edit_tool(
     if data.instructions and tool.instruction_type == "markdown":
         tool.instructions = data.instructions
     
-    # Update departments
+    # Update departments and subcategories
     tool_service.update_tool_departments(tool, data.department_ids)
+    tool_service.update_tool_subcategories(tool, data.subcategory_ids)
+    
+    if data.github_url is not None:
+        tool.github_url = data.github_url
     
     db.commit()
     

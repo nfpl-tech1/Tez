@@ -24,7 +24,7 @@ export function FileSection({
             <CardContent className="p-6">
                 <h3 className="font-semibold text-lg flex items-center gap-2 pb-4 border-b border-[hsl(var(--border))] mb-4">
                     <Upload className="h-5 w-5 text-[hsl(var(--primary))]" />
-                    Executable File
+                    Tool File (.exe, .zip)
                 </h3>
 
                 {currentFileName && (
@@ -44,12 +44,12 @@ export function FileSection({
                 <FileSelector
                     id="file"
                     label={currentFileName ? "Replace with New File" : ""}
-                    accept=".exe"
+                    accept=".exe,.zip"
                     file={file}
                     onFileChange={onFileChange}
                     disabled={disabled}
                     description="Click to select or drag and drop"
-                    maxSize="Only .exe files up to 150MB"
+                    maxSize="Only .exe or .zip files up to 150MB"
                     fileIcon={<Package className="h-10 w-10 text-[hsl(var(--primary))]" />}
                 />
             </CardContent>

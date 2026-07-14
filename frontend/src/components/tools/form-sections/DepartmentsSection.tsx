@@ -24,7 +24,7 @@ export function DepartmentsSection({
 }: DepartmentsSectionProps) {
     const selectedDepartments = watch('selectedDepartments');
     const selectedSubcategories = watch('selectedSubcategories') || [];
-    const { data: allSubcategories = [] } = useSubcategories();
+    const { data: allSubcategories = [], isLoading } = useSubcategories();
 
     // Filter subcategories by selected departments
     const filteredSubcategories = allSubcategories.filter(sub => 
@@ -33,6 +33,8 @@ export function DepartmentsSection({
 
     // Auto-remove subcategories if their parent department is unchecked
     useEffect(() => {
+        if (isLoading || allSubcategories.length === 0) return;
+
         if (!selectedDepartments || selectedDepartments.length === 0) {
             if (selectedSubcategories.length > 0) {
                 setValue('selectedSubcategories', []);

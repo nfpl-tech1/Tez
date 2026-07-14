@@ -8,6 +8,7 @@ import { useSearchParams } from 'react-router-dom';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { Badge } from '@/components/ui/badge';
 import { publicApi, type Department } from '@/lib/api';
+import type { Subcategory } from '@/lib/types';
 import { LoadingState, EmptyState } from '@/components/shared';
 import { PublicToolCard } from '@/components/tools';
 import { Package, Sparkles } from 'lucide-react';
@@ -19,8 +20,12 @@ export default function PublicTools() {
     const [allTools, setAllTools] = useState<any[]>([]);
     const [departments, setDepartments] = useState<Department[]>([]);
     const [loading, setLoading] = useState(true);
+    const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
     const [selectedDept, setSelectedDept] = useState<number | null>(
         searchParams.get('department') ? Number(searchParams.get('department')) : null
+    );
+    const [selectedSubcategories, setSelectedSubcategories] = useState<number[]>(
+        searchParams.getAll('subcategories').map(Number)
     );
 
     useEffect(() => {
@@ -32,13 +37,18 @@ export default function PublicTools() {
         try {
             const q = searchParams.get('q') || undefined;
             const dept = searchParams.get('department') ? Number(searchParams.get('department')) : undefined;
-            const data = await publicApi.getTools(q, dept);
+            const subs = searchParams.getAll('subcategories').map(Number);
+            const data = await publicApi.getTools(q, dept, subs);
             setTools(data.tools);
             setDepartments(data.departments);
             // Load all tools for autocomplete if not already loaded
             if (allTools.length === 0) {
                 const allData = await publicApi.getTools();
                 setAllTools(allData.tools);
+            }
+            if (subcategories.length === 0) {
+                const subsData = await publicApi.getSubcategories();
+                setSubcategories(subsData);
             }
         } catch (error) {
             console.error('Failed to load tools:', error);
@@ -56,16 +66,33 @@ export default function PublicTools() {
 
     const handleDeptFilter = (deptId: number | null) => {
         setSelectedDept(deptId);
+        setSelectedSubcategories([]);
         const params = new URLSearchParams(searchParams);
         if (deptId) params.set('department', deptId.toString());
         else params.delete('department');
+        params.delete('subcategories');
+        setSearchParams(params);
+    };
+
+    const handleSubcategoryToggle = (subId: number) => {
+        const newSelected = selectedSubcategories.includes(subId)
+            ? selectedSubcategories.filter(id => id !== subId)
+            : [...selectedSubcategories, subId];
+            
+        setSelectedSubcategories(newSelected);
+        const params = new URLSearchParams(searchParams);
+        params.delete('subcategories');
+        newSelected.forEach(id => params.append('subcategories', id.toString()));
         setSearchParams(params);
     };
 
     const clearFilters = () => {
         setSelectedDept(null);
+        setSelectedSubcategories([]);
         setSearchParams(new URLSearchParams());
     };
+
+    const activeSubcategories = subcategories.filter(sub => sub.department_id === selectedDept);
 
     const currentQuery = searchParams.get('q') || '';
     const totalDownloads = allTools.reduce((sum, t) => sum + (t.download_count || 0), 0);
@@ -142,6 +169,32 @@ export default function PublicTools() {
                     </div>
                 </div>
             </section>
+
+            {/* Subcategory Pills (Only visible when a department is selected) */}
+            {selectedDept && activeSubcategories.length > 0 && (
+                <section className="bg-[hsl(var(--muted))]/20 border-b">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center gap-2 py-2 overflow-x-auto scrollbar-hide">
+                            <span className="text-xs font-medium text-[hsl(var(--muted-foreground))] mr-2 flex-shrink-0">
+                                Filter by:
+                            </span>
+                            {activeSubcategories.map((sub) => (
+                                <button
+                                    key={sub.id}
+                                    onClick={() => handleSubcategoryToggle(sub.id)}
+                                    className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                                        selectedSubcategories.includes(sub.id)
+                                            ? 'bg-blue-100 text-blue-700 border border-blue-200 shadow-sm'
+                                            : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {sub.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* Tools Grid - Full Width */}
             <section className="py-8 bg-[hsl(var(--muted))]/30 min-h-[60vh]">

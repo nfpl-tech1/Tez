@@ -4,7 +4,7 @@ Public Routes - JSON API
 Open access tool browsing, downloads, and issue reporting.
 Refactored to use shared schemas and converters.
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -35,13 +35,18 @@ class IssueCreate(BaseModel):
 async def get_tools(
     q: str = None,
     department: int = None,
+    subcategories: List[int] = Query(None),
     db: Session = Depends(get_db)
 ):
     """Get all approved tools with optional search and filtering."""
     tool_service = ToolService(db)
     dept_service = DepartmentService(db)
     
-    tools = tool_service.get_approved_tools(search_query=q, department_id=department)
+    tools = tool_service.get_approved_tools(
+        search_query=q, 
+        department_id=department,
+        subcategory_ids=subcategories
+    )
     departments = dept_service.get_all_departments()
     
     return ToolsSearchResponse(
