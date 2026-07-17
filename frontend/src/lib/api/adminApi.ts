@@ -97,5 +97,20 @@ export const adminApi = {
         return response.data;
     },
 
+    deleteSubcategory: async (id: number) => {
+        const response = await api.delete(`/admin/subcategories/${id}`);
+        return response.data;
+    },
+
+    updateDepartment: async (id: number, data: { name: string; description?: string }) => {
+        const response = await api.put(`/admin/departments/${id}`, data);
+        return response.data;
+    },
+
+    updateSubcategory: async (id: number, data: { name: string }) => {
+        const response = await api.put(`/admin/subcategories/${id}`, data);
+        return response.data;
+    },
+
     getInstructionPdfUrl: (id: number) => `/api/admin/tools/${id}/instructions-pdf`,
 };

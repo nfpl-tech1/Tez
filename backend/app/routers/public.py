@@ -162,7 +162,7 @@ from ..schemas.subcategory import SubcategoryResponse
 @router.get("/subcategories", response_model=List[SubcategoryResponse])
 async def get_subcategories(db: Session = Depends(get_db)):
     """Get all subcategories."""
-    return db.query(Subcategory).order_by(Subcategory.sort_order).all()
+    return db.query(Subcategory).order_by(Subcategory.id.asc()).all()
 
 
 @router.get("/stats")

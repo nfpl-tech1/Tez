@@ -23,7 +23,7 @@ export function BasicInfoSection({ register, errors, disabled }: BasicInfoSectio
                 </h3>
 
                 <div className="space-y-2">
-                    <Label htmlFor="name">Tool Name *</Label>
+                    <Label htmlFor="name">Tool Name <span className="text-red-500">*</span></Label>
                     <Input
                         id="name"
                         {...register('name')}
@@ -40,7 +40,7 @@ export function BasicInfoSection({ register, errors, disabled }: BasicInfoSectio
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="description">Short Description *</Label>
+                    <Label htmlFor="description">Short Description <span className="text-red-500">*</span></Label>
                     <Textarea
                         id="description"
                         {...register('description')}
@@ -58,7 +58,7 @@ export function BasicInfoSection({ register, errors, disabled }: BasicInfoSectio
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="github_url">GitHub URL (Optional)</Label>
+                    <Label htmlFor="github_url">GitHub URL (Required for Submission) <span className="text-red-500">*</span></Label>
                     <Input
                         id="github_url"
                         {...register('github_url')}

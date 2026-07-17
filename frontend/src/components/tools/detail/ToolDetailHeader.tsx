@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Package, FolderOpen, Download, Edit, Github } from 'lucide-react';
+import { ArrowLeft, Package, FolderOpen, Download, Edit, Github, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,6 +13,7 @@ interface ToolDetailHeaderProps {
 export function ToolDetailHeader({ tool, onDownload }: ToolDetailHeaderProps) {
     const { user, isAuthenticated } = useAuth();
     const isAdmin = isAuthenticated && user?.role === 'admin';
+    const isTeamOrAdmin = isAuthenticated && (user?.role === 'admin' || user?.role === 'team_member');
 
     return (
         <div className="bg-gradient-to-r from-[hsl(var(--primary))] to-indigo-600 text-white">
@@ -39,6 +40,7 @@ export function ToolDetailHeader({ tool, onDownload }: ToolDetailHeaderProps) {
                                     ))}
                                     {tool.subcategory_names?.map((sub, idx) => (
                                         <Badge key={`sub-${idx}`} variant="outline" className="border-white/30 text-white bg-white/10">
+                                            <Tag className="h-3 w-3 mr-1" />
                                             {sub}
                                         </Badge>
                                     ))}
@@ -60,7 +62,7 @@ export function ToolDetailHeader({ tool, onDownload }: ToolDetailHeaderProps) {
                                 </Button>
                             </Link>
                         )}
-                        {tool.github_url && (
+                        {tool.github_url && isTeamOrAdmin && (
                             <a href={tool.github_url} target="_blank" rel="noopener noreferrer">
                                 <Button
                                     size="lg"

@@ -11,8 +11,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { TeamLayout } from '@/components/layout/TeamLayout';
 import { PageHeader, LoadingState } from '@/components/shared';
 import { AlertMessage } from '@/components/ui/alert';
+import { toast } from 'sonner';
 import { teamApi, type Department } from '@/lib/api';
 import { toolFormSchema, type ToolFormValues } from '@/lib/schemas';
+import { VALIDATION_MESSAGES } from '@/lib/constants';
 import {
     BasicInfoSection,
     InstructionsSection,
@@ -29,7 +31,8 @@ export default function UploadTool() {
     const [submitting, setSubmitting] = useState(false);
     const [savingDraft, setSavingDraft] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const [error, setError] = useState('');
+    const [fileError, setFileError] = useState('');
+    const [pdfError, setPdfError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [file, setFile] = useState<File | null>(null);
     const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -40,7 +43,7 @@ export default function UploadTool() {
         mode: 'onChange',
     });
 
-    const { register, handleSubmit, formState: { errors }, watch, setValue } = form;
+    const { register, handleSubmit, formState: { errors }, watch, setValue, setError: setFormError } = form;
 
     useEffect(() => {
         loadDepartments();
@@ -59,11 +62,36 @@ export default function UploadTool() {
 
     const handleFormSubmit = async (data: ToolFormValues, isDraft: boolean) => {
         if (!isDraft) {
-            if (!file) return setError('Please select an executable file to upload');
-            if (data.instructionType === 'pdf' && !pdfFile) return setError('Please upload a PDF for instructions');
+            let hasError = false;
+            if (!file) {
+                setFileError('Required: Please attach an executable file');
+                hasError = true;
+            } else {
+                setFileError('');
+            }
+            if (data.instructionType === 'pdf' && !pdfFile) {
+                setPdfError('Required: Please upload a PDF for instructions');
+                hasError = true;
+            } else {
+                setPdfError('');
+            }
+            if (!data.github_url) {
+                setFormError('github_url', { type: 'manual', message: VALIDATION_MESSAGES.REQUIRED.GITHUB_URL });
+                hasError = true;
+            }
+            if (hasError) {
+                setTimeout(() => {
+                    const firstErrorElement = document.querySelector('.border-destructive, .text-destructive, [data-invalid="true"], [aria-invalid="true"]');
+                    if (firstErrorElement) {
+                        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+                return;
+            }
         }
 
-        setError('');
+        setFileError('');
+        setPdfError('');
         setSuccessMessage('');
         isDraft ? setSavingDraft(true) : setSubmitting(true);
 
@@ -90,7 +118,7 @@ export default function UploadTool() {
                 setTimeout(() => navigate('/team/dashboard'), 2000);
             }
         } catch (err: any) {
-            setError(err.response?.data?.detail || 'Failed to upload tool');
+            toast.error(err.response?.data?.detail || 'Failed to upload tool');
         } finally {
             setSubmitting(false);
             setSavingDraft(false);
@@ -99,10 +127,20 @@ export default function UploadTool() {
 
     const onSubmit = (isDraft: boolean) => {
         if (isDraft && !form.getValues().name) {
-            setError('Tool name is required for draft');
+            toast.error('Tool name is required for draft');
             return;
         }
-        handleSubmit((data) => handleFormSubmit(data, isDraft))();
+        handleSubmit(
+            (data) => handleFormSubmit(data, isDraft),
+            (errors) => {
+                setTimeout(() => {
+                    const firstErrorElement = document.querySelector('.border-destructive, .text-destructive, [data-invalid="true"], [aria-invalid="true"]');
+                    if (firstErrorElement) {
+                        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+            }
+        )();
     };
 
     if (loading) {
@@ -120,7 +158,6 @@ export default function UploadTool() {
             {submitted && <SuccessOverlay message="Tool Submitted!" subMessage="Your tool has been submitted for review. Redirecting..." />}
 
             <div className="space-y-6">
-                {error && <AlertMessage variant="destructive" message={error} onDismiss={() => setError('')} />}
                 {successMessage && !submitted && <AlertMessage variant="success" message={successMessage} />}
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -132,13 +169,25 @@ export default function UploadTool() {
                             watch={watch}
                             setValue={setValue}
                             pdfFile={pdfFile}
-                            onPdfChange={setPdfFile}
+                            onPdfChange={(file) => {
+                                setPdfFile(file);
+                                if (file) setPdfError('');
+                            }}
+                            pdfError={pdfError}
                             disabled={submitted}
                         />
                     </div>
 
                     <div className="space-y-6">
-                        <FileSection file={file} onFileChange={setFile} disabled={submitted} />
+                        <FileSection 
+                            file={file} 
+                            onFileChange={(f) => {
+                                setFile(f);
+                                if (f) setFileError('');
+                            }} 
+                            error={fileError}
+                            disabled={submitted} 
+                        />
                         <DepartmentsSection departments={departments} watch={watch} setValue={setValue} errors={errors} disabled={submitted} />
                         <ToolFormActions
                             onSubmit={() => onSubmit(false)}

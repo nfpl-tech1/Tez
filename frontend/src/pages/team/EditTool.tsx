@@ -9,8 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ToolStatusBadge, ToolStatusBanner } from '@/components/tools';
 import { Loader2, Save, Send, X } from 'lucide-react';
+import { toast } from 'sonner';
 import { useTeamTool, useTeamDepartments, useUpdateTool } from '@/hooks';
 import { toolFormSchema, type ToolFormValues } from '@/lib/schemas';
+import { VALIDATION_MESSAGES } from '@/lib/constants';
 import { BasicInfoSection, InstructionsSection, FileSection, DepartmentsSection } from '@/components/tools/form-sections';
 
 export default function EditTool() {
@@ -26,7 +28,6 @@ export default function EditTool() {
     // Local state for files (not handled by react-hook-form)
     const [file, setFile] = useState<File | null>(null);
     const [pdfFile, setPdfFile] = useState<File | null>(null);
-    const [error, setError] = useState('');
 
     const form = useForm<ToolFormValues>({
         resolver: zodResolver(toolFormSchema),
@@ -41,7 +42,7 @@ export default function EditTool() {
         },
     });
 
-    const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = form;
+    const { register, handleSubmit, formState: { errors }, watch, setValue, reset, setError: setFormError } = form;
 
     // Load initial data into form
     useEffect(() => {
@@ -69,7 +70,22 @@ export default function EditTool() {
     if (!tool) return null;
 
     const handleFormSubmit = (data: ToolFormValues, isDraft: boolean) => {
-        setError('');
+        if (!isDraft) {
+            let hasError = false;
+            if (!data.github_url) {
+                setFormError('github_url', { type: 'manual', message: VALIDATION_MESSAGES.REQUIRED.GITHUB_URL });
+                hasError = true;
+            }
+            if (hasError) {
+                setTimeout(() => {
+                    const firstErrorElement = document.querySelector('.border-destructive, .text-destructive, [data-invalid="true"], [aria-invalid="true"]');
+                    if (firstErrorElement) {
+                        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+                return;
+            }
+        }
 
         const formData = new FormData();
         formData.append('name', data.name);
@@ -101,14 +117,24 @@ export default function EditTool() {
                     navigate('/team/dashboard');
                 },
                 onError: (err: any) => {
-                    setError(err.response?.data?.detail || 'Failed to update tool');
+                    toast.error(err.response?.data?.detail || 'Failed to update tool');
                 }
             }
         );
     };
 
     const onSubmit = (isDraft: boolean) => {
-        handleSubmit((data) => handleFormSubmit(data, isDraft))();
+        handleSubmit(
+            (data) => handleFormSubmit(data, isDraft),
+            (errors) => {
+                setTimeout(() => {
+                    const firstErrorElement = document.querySelector('.border-destructive, .text-destructive, [data-invalid="true"], [aria-invalid="true"]');
+                    if (firstErrorElement) {
+                        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+            }
+        )();
     };
 
     const isSubmitting = updateTool.isPending;
@@ -131,8 +157,6 @@ export default function EditTool() {
             )}
 
             <div className="space-y-6">
-                {error && <AlertMessage variant="destructive" message={error} onDismiss={() => setError('')} />}
-
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Left Column */}
                     <div className="lg:col-span-2 space-y-6">

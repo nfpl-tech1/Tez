@@ -4,19 +4,34 @@ Team Tools Routes
 Tool CRUD endpoints for team members.
 Refactored to use shared schemas and converters.
 """
+import urllib.parse
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import Optional, List
 
 from ...database import get_db
 from ...models.tool import Tool
+from ...models.subcategory import Subcategory
+from ...models.department import Department
 from ...services.tool_service import ToolService
 from ...services.file_service import FileService
 from ...schemas.tool_response import ToolResponse
+from ...schemas.subcategory import SubcategoryCreate, SubcategoryResponse
 from ...schemas.converters import tool_to_response
 from .dependencies import require_team_member
 
 router = APIRouter()
+
+
+def is_valid_github_url(url: Optional[str]) -> bool:
+    """Check if a URL is a valid GitHub URL."""
+    if not url:
+        return False
+    try:
+        parsed = urllib.parse.urlparse(url)
+        return parsed.scheme in ["http", "https"] and parsed.netloc in ["github.com", "www.github.com"]
+    except Exception:
+        return False
 
 
 def parse_department_ids(department_ids: str) -> List[int]:
@@ -78,9 +93,14 @@ async def create_tool(
     if github_url and tool_service.check_github_url_exists(github_url):
         raise HTTPException(status_code=400, detail="A tool with this GitHub URL already exists")
     
+    if github_url and github_url.strip():
+        if not is_valid_github_url(github_url):
+            raise HTTPException(status_code=400, detail="Must be a valid GitHub URL (e.g., https://github.com/username/repo)")
     
     # Validate for submission
     if not save_as_draft:
+        if not github_url or not github_url.strip():
+            raise HTTPException(status_code=400, detail="GitHub URL is required for submission")
         if not file or not file.filename:
             raise HTTPException(status_code=400, detail="File is required for submission")
         if instruction_type == "markdown" and not instructions:
@@ -169,6 +189,13 @@ async def update_tool(
     if github_url and tool_service.check_github_url_exists(github_url, exclude_tool_id=tool_id):
         raise HTTPException(status_code=400, detail="A tool with this GitHub URL already exists")
     
+    if github_url and github_url.strip():
+        if not is_valid_github_url(github_url):
+            raise HTTPException(status_code=400, detail="Must be a valid GitHub URL (e.g., https://github.com/username/repo)")
+            
+    if not save_as_draft:
+        if not github_url or not github_url.strip():
+            raise HTTPException(status_code=400, detail="GitHub URL is required for submission")
     
     # Handle file upload
     if file and file.filename:
@@ -280,3 +307,32 @@ async def delete_tool(
     tool_service.delete_tool(tool)
     
     return {"success": True, "message": "Tool deleted"}
+
+
+@router.post("/subcategories", response_model=SubcategoryResponse)
+async def create_subcategory(
+    data: SubcategoryCreate,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(require_team_member)
+):
+    """Create a new subcategory under a department."""
+    dept = db.query(Department).filter(Department.id == data.department_id).first()
+    if not dept:
+        raise HTTPException(status_code=404, detail="Department not found")
+        
+    # Check if subcategory with same name already exists in this department
+    existing = db.query(Subcategory).filter(
+        Subcategory.name == data.name.strip(),
+        Subcategory.department_id == data.department_id
+    ).first()
+    if existing:
+        return existing
+        
+    sub = Subcategory(
+        name=data.name.strip(),
+        department_id=data.department_id
+    )
+    db.add(sub)
+    db.commit()
+    db.refresh(sub)
+    return sub

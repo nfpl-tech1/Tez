@@ -31,5 +31,7 @@ export {
     useTeamDepartments,
     usePublicDepartments,
     useCreateDepartment,
+    useSubcategories,
+    useCreateSubcategory,
     departmentKeys,
 } from './useDepartments';

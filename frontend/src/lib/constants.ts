@@ -157,11 +157,13 @@ export const VALIDATION_MESSAGES = {
         FILE: 'Please select an executable file to upload',
         PDF: 'Please upload a PDF file for instructions',
         DEPARTMENT: 'Please select at least one department',
+        GITHUB_URL: 'GitHub URL is required for submission',
     },
     INVALID: {
         EXE_ONLY: 'Only .exe files are allowed',
         PDF_ONLY: 'Only .pdf files are allowed for instructions',
         EMAIL: 'Please enter a valid email address',
+        GITHUB_URL_INVALID: 'Must be a valid GitHub URL (e.g., https://github.com/username/repo)',
     },
 } as const;
 

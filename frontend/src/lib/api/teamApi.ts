@@ -92,4 +92,9 @@ export const teamApi = {
         const response = await api.post('/team/notifications/mark-all-read');
         return response.data;
     },
+
+    createSubcategory: async (data: { name: string; department_id: number }) => {
+        const response = await api.post('/team/subcategories', data);
+        return response.data;
+    },
 };

@@ -1,8 +1,31 @@
+# React Frontend (Tez Tools)
+
+This is the React frontend for the Tez Tools Repository, built using TypeScript and Vite.
+
+## Quick Start
+
+### Running from Workspace Root (Recommended)
+If you are at the main project root folder, you can run:
+```bash
+# Install dependencies (first time only)
+npm run install:frontend
+
+# Run the frontend dev server
+npm run dev
+```
+
+### Running from Frontend Directory
+```bash
+# Install dependencies
+npm install
+
+# Run dev server
+npm run dev
+```
+
+---
+
 # React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh

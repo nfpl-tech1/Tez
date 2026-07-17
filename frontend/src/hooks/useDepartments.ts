@@ -56,3 +56,20 @@ export function useCreateDepartment() {
         },
     });
 }
+
+export function useCreateSubcategory() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: { name: string; department_id: number }) =>
+            teamApi.createSubcategory(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['subcategories'] });
+            showToast.success('Subcategory created');
+        },
+        onError: (error: any) => {
+            const errorMsg = error.response?.data?.detail || error.message || 'Failed to create subcategory';
+            showToast.error(errorMsg);
+        },
+    });
+}

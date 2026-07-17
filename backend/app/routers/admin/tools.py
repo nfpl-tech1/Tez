@@ -13,10 +13,22 @@ import markdown2
 
 from ...database import get_db
 from ...services.tool_service import ToolService
+import urllib.parse
 from ...services.file_service import FileService
 from .dependencies import require_admin
 
 router = APIRouter()
+
+
+def is_valid_github_url(url: Optional[str]) -> bool:
+    """Check if a URL is a valid GitHub URL."""
+    if not url:
+        return False
+    try:
+        parsed = urllib.parse.urlparse(url)
+        return parsed.scheme in ["http", "https"] and parsed.netloc in ["github.com", "www.github.com"]
+    except Exception:
+        return False
 
 
 # Pydantic Models
@@ -175,6 +187,13 @@ async def admin_edit_tool(
         raise HTTPException(status_code=404, detail="Tool not found")
     
     # Update basic info
+    if not data.github_url or not data.github_url.strip():
+        raise HTTPException(status_code=400, detail="GitHub URL is required")
+    if not is_valid_github_url(data.github_url):
+        raise HTTPException(status_code=400, detail="Must be a valid GitHub URL (e.g., https://github.com/username/repo)")
+    if tool_service.check_github_url_exists(data.github_url, exclude_tool_id=tool_id):
+        raise HTTPException(status_code=400, detail="A tool with this GitHub URL already exists")
+
     tool.name = data.name
     tool.description = data.description
     
@@ -185,8 +204,7 @@ async def admin_edit_tool(
     tool_service.update_tool_departments(tool, data.department_ids)
     tool_service.update_tool_subcategories(tool, data.subcategory_ids)
     
-    if data.github_url is not None:
-        tool.github_url = data.github_url
+    tool.github_url = data.github_url
     
     db.commit()
     

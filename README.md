@@ -11,6 +11,12 @@ A web-based tool repository application where developers can publish .exe applic
 - **Search**: Find tools by name or description
 - **Department Categories**: Organize tools by department
 
+## Recent Updates (July 17, 2026)
+
+- **Admin Departments Section**: Restructured UI into a clean, row-based layout with increased font sizing, implemented inline double-click editing for departments, added pencil icons for subcategories, made delete actions always visible for better discoverability, set automatic autofocus on adding a department, migrated success banners to 7-second auto-dismissing toasts, and added backend `PUT` endpoints with duplicate checks.
+- **Missing tool creation errors**: Migrated validation errors from top-level banners to field-specific inline red text, changed file drag-and-drop borders to red (`border-destructive`) upon failure, implemented automatic viewport scrolling to the first invalid field, upgraded global form/network failure alerts to overlay toast notifications, and made GitHub repository URL a required field for non-draft submissions.
+- **Tool Details Section**: Restricted GitHub repository links to admins/team members and enhanced subcategory list tags with inline Tag icons.
+
 ## Tech Stack
 
 - **Backend**: FastAPI (Python 3.11+)
@@ -23,7 +29,25 @@ A web-based tool repository application where developers can publish .exe applic
 
 ## Quick Start
 
-### Local Development (Without Docker)
+### Running from Project Root (Shortcuts)
+
+If you are at the workspace root directory, you can use these shortcuts:
+
+```bash
+# Install frontend dependencies (first time only)
+npm run install:frontend
+
+# Run the React frontend dev server (available at http://localhost:5173)
+npm run dev
+
+# Run the FastAPI backend server (Windows - available at http://localhost:8000)
+npm run dev:backend
+
+# Run the FastAPI backend server (Linux/Mac - available at http://localhost:8000)
+npm run dev:backend:unix
+```
+
+### Local Development (Standard Setup)
 
 #### Backend Setup
 

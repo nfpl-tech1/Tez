@@ -10,6 +10,7 @@ interface FileSectionProps {
     currentFileName?: string;
     currentFileSize?: number;
     currentFileSizeDisplay?: string;
+    error?: string;
 }
 
 export function FileSection({
@@ -17,14 +18,15 @@ export function FileSection({
     onFileChange,
     disabled,
     currentFileName,
-    currentFileSizeDisplay
+    currentFileSizeDisplay,
+    error
 }: FileSectionProps) {
     return (
         <Card className="border-2 border-dashed border-[hsl(var(--primary))]/30">
             <CardContent className="p-6">
                 <h3 className="font-semibold text-lg flex items-center gap-2 pb-4 border-b border-[hsl(var(--border))] mb-4">
                     <Upload className="h-5 w-5 text-[hsl(var(--primary))]" />
-                    Tool File (.exe, .zip)
+                    Tool File (.exe, .zip) <span className="text-red-500">*</span>
                 </h3>
 
                 {currentFileName && (
@@ -51,6 +53,7 @@ export function FileSection({
                     description="Click to select or drag and drop"
                     maxSize="Only .exe or .zip files up to 150MB"
                     fileIcon={<Package className="h-10 w-10 text-[hsl(var(--primary))]" />}
+                    error={error}
                 />
             </CardContent>
         </Card>

@@ -3,6 +3,10 @@ from pydantic import BaseModel
 class SubcategoryBase(BaseModel):
     name: str
 
+class SubcategoryCreate(BaseModel):
+    name: str
+    department_id: int
+
 class SubcategoryResponse(SubcategoryBase):
     id: int
     department_id: int

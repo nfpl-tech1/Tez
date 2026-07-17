@@ -17,6 +17,7 @@ interface InstructionsSectionProps {
     pdfFile: File | null;
     onPdfChange: (file: File | null) => void;
     currentPdfName?: string | null;
+    pdfError?: string;
 }
 
 export function InstructionsSection({
@@ -26,7 +27,8 @@ export function InstructionsSection({
     disabled,
     pdfFile,
     onPdfChange,
-    currentPdfName
+    currentPdfName,
+    pdfError
 }: InstructionsSectionProps) {
     const instructions = watch('instructions');
     const hasPdf = pdfFile || currentPdfName;
@@ -104,6 +106,7 @@ export function InstructionsSection({
                         description="Click to select a PDF file"
                         maxSize="Only .pdf files up to 50MB"
                         fileIcon={<FileText className="h-10 w-10 text-red-500" />}
+                        error={pdfError}
                     />
                 </div>
 

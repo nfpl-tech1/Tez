@@ -12,6 +12,7 @@ interface FileSelectorProps {
     description?: string;
     maxSize?: string;
     fileIcon?: React.ReactNode;
+    error?: string;
 }
 
 export function FileSelector({
@@ -23,7 +24,8 @@ export function FileSelector({
     disabled = false,
     description,
     maxSize,
-    fileIcon
+    fileIcon,
+    error
 }: FileSelectorProps) {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
@@ -34,9 +36,12 @@ export function FileSelector({
 
     return (
         <div className="space-y-2">
-            <Label htmlFor={id}>{label}</Label>
-            <div className={`border-2 border-dashed border-[hsl(var(--border))] rounded-xl p-6 text-center relative transition-colors ${disabled ? 'opacity-50 bg-[hsl(var(--muted))]' : 'hover:border-[hsl(var(--primary))]/50 hover:bg-[hsl(var(--muted))]/50'
-                }`}>
+            <Label htmlFor={id} className={error ? "text-destructive" : ""}>{label}</Label>
+            <div className={`border-2 border-dashed rounded-xl p-6 text-center relative transition-colors ${
+                disabled ? 'opacity-50 bg-[hsl(var(--muted))] border-[hsl(var(--border))]' 
+                : error ? 'border-destructive bg-destructive/5 hover:bg-destructive/10'
+                : 'border-[hsl(var(--border))] hover:border-[hsl(var(--primary))]/50 hover:bg-[hsl(var(--muted))]/50'
+            }`}>
                 {file ? (
                     <div className="flex items-center justify-center gap-3">
                         {fileIcon || <FileText className="h-10 w-10 text-[hsl(var(--primary))]" />}
@@ -83,6 +88,11 @@ export function FileSelector({
                     />
                 )}
             </div>
+            {error && (
+                <p className="text-sm font-medium text-destructive mt-1">
+                    {error}
+                </p>
+            )}
         </div>
     );
 }

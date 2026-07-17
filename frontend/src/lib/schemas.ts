@@ -23,7 +23,21 @@ export const toolFormSchema = z.object({
     selectedDepartments: z.array(z.number())
         .min(1, VALIDATION_MESSAGES.REQUIRED.DEPARTMENT),
     selectedSubcategories: z.array(z.number()),
-    github_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+    github_url: z.string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (val) => {
+                if (!val) return true;
+                try {
+                    const url = new URL(val);
+                    return url.hostname === 'github.com' || url.hostname === 'www.github.com';
+                } catch {
+                    return false;
+                }
+            },
+            { message: VALIDATION_MESSAGES.INVALID.GITHUB_URL_INVALID }
+        ),
 });
 
 export type ToolFormValues = z.infer<typeof toolFormSchema>;

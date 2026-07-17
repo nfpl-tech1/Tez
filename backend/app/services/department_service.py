@@ -55,3 +55,15 @@ class DepartmentService:
                 name="Miscellaneous",
                 description="General utilities (Excel to CSV, PDF tools, etc.)"
             )
+
+    def update_department(self, dept_id: int, name: str, description: Optional[str] = None) -> Department:
+        """Update department name and description."""
+        dept = self.get_department_by_id(dept_id)
+        if not dept:
+            raise ValueError("Department not found")
+        dept.name = name
+        if description is not None:
+            dept.description = description
+        self.db.commit()
+        self.db.refresh(dept)
+        return dept

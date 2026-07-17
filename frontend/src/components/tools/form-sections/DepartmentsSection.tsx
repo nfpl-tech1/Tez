@@ -4,7 +4,7 @@ import { DepartmentSelector, SubcategorySelector } from '@/components/forms';
 import type { Department } from '@/lib/api';
 import type { ToolFormValues } from '@/lib/schemas';
 import { AlertCircle } from 'lucide-react';
-import { useSubcategories } from '@/hooks/useDepartments';
+import { useSubcategories, useCreateSubcategory } from '@/hooks/useDepartments';
 import { useEffect } from 'react';
 
 interface DepartmentsSectionProps {
@@ -25,6 +25,7 @@ export function DepartmentsSection({
     const selectedDepartments = watch('selectedDepartments');
     const selectedSubcategories = watch('selectedSubcategories') || [];
     const { data: allSubcategories = [], isLoading } = useSubcategories();
+    const createSubcategory = useCreateSubcategory();
 
     // Filter subcategories by selected departments
     const filteredSubcategories = allSubcategories.filter(sub => 
@@ -65,6 +66,15 @@ export function DepartmentsSection({
         setValue('selectedSubcategories', updated, { shouldValidate: true });
     };
 
+    const handleCreateSubcategory = async (name: string, departmentId: number) => {
+        try {
+            const newSub = await createSubcategory.mutateAsync({ name, department_id: departmentId });
+            setValue('selectedSubcategories', [...selectedSubcategories, newSub.id], { shouldValidate: true });
+        } catch (err) {
+            console.error('Failed to create subcategory:', err);
+        }
+    };
+
     return (
         <Card>
             <CardContent className="p-6">
@@ -86,6 +96,9 @@ export function DepartmentsSection({
                     selectedIds={selectedSubcategories}
                     onToggle={toggleSubcategory}
                     disabled={disabled}
+                    selectedDepartments={selectedDepartments || []}
+                    departments={departments}
+                    onCreateSubcategory={handleCreateSubcategory}
                 />
             </CardContent>
         </Card>

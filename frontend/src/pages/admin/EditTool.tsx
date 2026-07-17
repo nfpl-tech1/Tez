@@ -21,9 +21,11 @@ import {
 } from '@/components/tools';
 import { ArrowLeft, Edit, Loader2, Save } from 'lucide-react';
 import { toolFormSchema, type ToolFormValues } from '@/lib/schemas';
+import { VALIDATION_MESSAGES } from '@/lib/constants';
 import { BasicInfoSection, InstructionsSection, DepartmentsSection } from '@/components/tools/form-sections';
 import { AlertMessage } from '@/components/ui/alert';
-import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 export default function AdminEditTool() {
     const { id } = useParams<{ id: string }>();
@@ -33,7 +35,6 @@ export default function AdminEditTool() {
     const { data: tool, isLoading: toolLoading } = useAdminTool(toolId);
     const { data: departments, isLoading: deptLoading } = useAdminDepartments();
     const updateTool = useAdminUpdateTool();
-    const [error, setError] = useState('');
 
     const form = useForm<ToolFormValues>({
         resolver: zodResolver(toolFormSchema),
@@ -48,7 +49,7 @@ export default function AdminEditTool() {
         },
     });
 
-    const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = form;
+    const { register, handleSubmit, formState: { errors }, watch, setValue, reset, setError: setFormError } = form;
 
     useEffect(() => {
         if (tool) {
@@ -75,7 +76,20 @@ export default function AdminEditTool() {
     if (!tool) return null;
 
     const onSubmit = (data: ToolFormValues) => {
-        setError('');
+        let hasError = false;
+        if (!data.github_url) {
+            setFormError('github_url', { type: 'manual', message: VALIDATION_MESSAGES.REQUIRED.GITHUB_URL });
+            hasError = true;
+        }
+        if (hasError) {
+            setTimeout(() => {
+                const firstErrorElement = document.querySelector('.border-destructive, .text-destructive, [data-invalid="true"], [aria-invalid="true"]');
+                if (firstErrorElement) {
+                    firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+            return;
+        }
         updateTool.mutate(
             {
                 id: toolId,
@@ -90,7 +104,7 @@ export default function AdminEditTool() {
             },
             {
                 onSuccess: () => navigate('/admin/tools'),
-                onError: (err: any) => setError(err.response?.data?.detail || 'Failed to update tool')
+                onError: (err: any) => toast.error(err.response?.data?.detail || 'Failed to update tool')
             }
         );
     };
@@ -111,9 +125,14 @@ export default function AdminEditTool() {
                 status={tool.status}
             />
 
-            {error && <AlertMessage variant="destructive" message={error} onDismiss={() => setError('')} className="mb-6" />}
-
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit, (errors) => {
+                setTimeout(() => {
+                    const firstErrorElement = document.querySelector('.border-destructive, .text-destructive, [data-invalid="true"], [aria-invalid="true"]');
+                    if (firstErrorElement) {
+                        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+            })}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 space-y-6">
                         <BasicInfoSection register={register} errors={errors} />
