@@ -23,7 +23,6 @@ import { ArrowLeft, Edit, Loader2, Save } from 'lucide-react';
 import { toolFormSchema, type ToolFormValues } from '@/lib/schemas';
 import { VALIDATION_MESSAGES } from '@/lib/constants';
 import { BasicInfoSection, InstructionsSection, DepartmentsSection } from '@/components/tools/form-sections';
-import { AlertMessage } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
 
@@ -125,7 +124,7 @@ export default function AdminEditTool() {
                 status={tool.status}
             />
 
-            <form onSubmit={handleSubmit(onSubmit, (errors) => {
+            <form onSubmit={handleSubmit(onSubmit, () => {
                 setTimeout(() => {
                     const firstErrorElement = document.querySelector('.border-destructive, .text-destructive, [data-invalid="true"], [aria-invalid="true"]');
                     if (firstErrorElement) {

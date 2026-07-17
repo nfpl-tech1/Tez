@@ -9,7 +9,7 @@ import { adminApi, publicApi, teamApi, type Department } from '@/lib/api';
 import type { Subcategory } from '@/lib/types';
 import { PageHeader, LoadingState, EmptyState } from '@/components/shared';
 import { AlertMessage } from '@/components/ui/alert';
-import { Plus, FolderOpen, Loader2, X, Hash, Check, Pencil } from 'lucide-react';
+import { Plus, FolderOpen, Loader2, X, Check, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface AddSubcategoryInlineProps {
@@ -184,7 +184,7 @@ export default function Departments() {
             const currentDept = departments.find(d => d.id === id);
             await adminApi.updateDepartment(id, { 
                 name: editingDeptName.trim(), 
-                description: currentDept?.description 
+                description: currentDept?.description ?? undefined 
             });
             setEditingDeptId(null);
             loadData();

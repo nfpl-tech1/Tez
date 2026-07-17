@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TeamLayout } from '@/components/layout/TeamLayout';
 import { PageHeader, LoadingState } from '@/components/shared';
-import { AlertMessage } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ToolStatusBadge, ToolStatusBanner } from '@/components/tools';
@@ -126,7 +125,7 @@ export default function EditTool() {
     const onSubmit = (isDraft: boolean) => {
         handleSubmit(
             (data) => handleFormSubmit(data, isDraft),
-            (errors) => {
+            () => {
                 setTimeout(() => {
                     const firstErrorElement = document.querySelector('.border-destructive, .text-destructive, [data-invalid="true"], [aria-invalid="true"]');
                     if (firstErrorElement) {

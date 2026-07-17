@@ -132,7 +132,7 @@ export default function UploadTool() {
         }
         handleSubmit(
             (data) => handleFormSubmit(data, isDraft),
-            (errors) => {
+            () => {
                 setTimeout(() => {
                     const firstErrorElement = document.querySelector('.border-destructive, .text-destructive, [data-invalid="true"], [aria-invalid="true"]');
                     if (firstErrorElement) {
